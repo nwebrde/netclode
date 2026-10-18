@@ -2394,7 +2394,7 @@ func (m *Manager) doFetchModelsFromModelsDev(ctx context.Context, provider strin
 		slog.ErrorContext(ctx, "Failed to create models.dev request", "error", err)
 		return nil
 	}
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{Timeout: 10 * time.Second, Transport: &http.Transport{Proxy: nil}}
 	resp, err := client.Do(req)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to fetch from models.dev", "error", err)
@@ -2583,7 +2583,7 @@ func (m *Manager) fetchZenModels(ctx context.Context) []*pb.ModelInfo {
 		slog.ErrorContext(ctx, "Failed to create models.dev request for Zen", "error", err)
 		return m.getZenModelsFallback()
 	}
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{Timeout: 10 * time.Second, Transport: &http.Transport{Proxy: nil}}
 	resp, err := client.Do(req)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to fetch from models.dev for Zen", "error", err)
