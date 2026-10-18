@@ -2835,6 +2835,12 @@ func getModelsFallback(provider string) []*pb.ModelInfo {
 			{Id: "anthropic/claude-sonnet-4-5", Name: "Claude Sonnet 4.5", Provider: strPtr("Anthropic"), Capabilities: []string{"chat", "vision", "code", "reasoning"}},
 			{Id: "anthropic/claude-sonnet-4-0", Name: "Claude Sonnet 4", Provider: strPtr("Anthropic"), Capabilities: []string{"chat", "vision", "code"}},
 		}
+	case "deepseek":
+		return []*pb.ModelInfo{
+			{Id: "deepseek-v4.1-flash", Name: "DeepSeek V4.1 Flash", Provider: strPtr("DeepSeek"), Capabilities: []string{"chat", "code"}},
+			{Id: "deepseek-chat", Name: "DeepSeek V3", Provider: strPtr("DeepSeek"), Capabilities: []string{"chat", "code"}},
+			{Id: "deepseek-reasoner", Name: "DeepSeek R1", Provider: strPtr("DeepSeek"), Capabilities: []string{"chat", "code", "reasoning"}},
+		}
 	default:
 		return nil
 	}
