@@ -17,9 +17,11 @@ spec:
         app: control-plane
     spec:
       serviceAccountName: control-plane
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: control-plane
-          image: ghcr.io/angristan/netclode-control-plane:latest
+          image: ghcr.io/nwebrde/netclode-control-plane:latest
           ports:
             - containerPort: 3000
               name: client
@@ -116,6 +118,13 @@ spec:
                 secretKeyRef:
                   name: netclode-secrets
                   key: zai-api-key
+                  optional: true
+            # DeepSeek API key (optional - for DeepSeek models via OpenCode SDK)
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: netclode-secrets
+                  key: deepseek-api-key
                   optional: true
             # Ollama local inference (optional - only set if ollama_enabled)
 {% if ollama_enabled | default(false) %}

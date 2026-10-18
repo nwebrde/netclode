@@ -53,6 +53,9 @@ type Config struct {
 
 	// Z.AI (optional)
 	ZaiAPIKey string // Z.AI API key (for GLM-4.7 models via Anthropic-compatible endpoint)
+
+	// DeepSeek (optional)
+	DeepSeekAPIKey string // DeepSeek API key (for DeepSeek models via OpenCode SDK)
 }
 
 func Load() *Config {
@@ -66,7 +69,7 @@ func Load() *Config {
 		MistralAPIKey:         getEnv("MISTRAL_API_KEY", ""),
 		GitHubCopilotToken:    getEnv("GITHUB_COPILOT_TOKEN", ""),
 		K8sNamespace:          getEnv("K8S_NAMESPACE", "netclode"),
-		AgentImage:            getEnv("AGENT_IMAGE", "ghcr.io/angristan/netclode-agent:latest"),
+		AgentImage:            getEnv("AGENT_IMAGE", "ghcr.io/nwebrde/netclode-agent:latest"),
 		SandboxTemplate:       getEnv("SANDBOX_TEMPLATE", "netclode-agent"),
 		DefaultCPUs:           getEnvInt("DEFAULT_CPUS", 4),
 		DefaultMemoryMB:       getEnvInt("DEFAULT_MEMORY_MB", 4096),
@@ -97,6 +100,9 @@ func Load() *Config {
 
 		// Z.AI
 		ZaiAPIKey: getEnv("ZAI_API_KEY", ""),
+
+		// DeepSeek
+		DeepSeekAPIKey: getEnv("DEEPSEEK_API_KEY", ""),
 	}
 }
 

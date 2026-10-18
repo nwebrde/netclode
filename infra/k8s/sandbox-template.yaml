@@ -48,6 +48,8 @@ spec:
         netclode.io/component: agent
     spec:
       runtimeClassName: kata-clh
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       initContainers:
         # Fix MTU for Cilium + Kata compatibility
         # Kata VMs don't inherit route MTU from outer namespace, causing fragmentation
@@ -70,7 +72,7 @@ spec:
                 - NET_ADMIN
       containers:
         - name: agent
-          image: ghcr.io/angristan/netclode-agent:latest
+          image: ghcr.io/nwebrde/netclode-agent:latest
           imagePullPolicy: Always
           securityContext:
             privileged: true  # See security note above
@@ -117,6 +119,12 @@ spec:
                 secretKeyRef:
                   name: netclode-secrets
                   key: zai-api-key-placeholder
+                  optional: true
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: netclode-secrets
+                  key: deepseek-api-key-placeholder
                   optional: true
             - name: GITHUB_COPILOT_TOKEN
               valueFrom:

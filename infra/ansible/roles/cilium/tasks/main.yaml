@@ -2,6 +2,12 @@
 # Cilium CNI role - installs Cilium for NetworkPolicy support
 # Replaces Flannel (k3s must be started with --flannel-backend=none)
 
+- name: Install Helm
+  ansible.builtin.shell: |
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+
 - name: Add Cilium Helm repository
   kubernetes.core.helm_repository:
     name: cilium

@@ -41,7 +41,7 @@ FROM golang:1.25-bookworm AS go-builder
 WORKDIR /build
 COPY services/agent/auth-proxy ./auth-proxy
 WORKDIR /build/auth-proxy
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o auth-proxy .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o auth-proxy .
 
 # =============================================================================
 # Builder
@@ -73,30 +73,30 @@ RUN --mount=type=cache,target=/root/.npm \
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g @github/copilot
 
-# OpenCode CLI (download Linux x64 binary from GitHub releases)
-RUN curl -fsSL "https://github.com/anomalyco/opencode/releases/latest/download/opencode-linux-x64.tar.gz" -o /tmp/opencode.tar.gz && \
+# OpenCode CLI (download Linux arm64 binary from GitHub releases)
+RUN curl -fsSL "https://github.com/anomalyco/opencode/releases/latest/download/opencode-linux-arm64.tar.gz" -o /tmp/opencode.tar.gz && \
     tar -xzf /tmp/opencode.tar.gz -C /tmp && \
     mv /tmp/opencode /usr/local/bin/opencode && \
     chmod +x /usr/local/bin/opencode && \
     rm -rf /tmp/opencode.tar.gz
 
-# GitHub CLI (download Linux x64 binary)
+# GitHub CLI (download Linux arm64 binary)
 RUN GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -oP '"tag_name": "v\K[^"]+') && \
-    curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" -o /tmp/gh.tar.gz && \
+    curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_arm64.tar.gz" -o /tmp/gh.tar.gz && \
     tar -xzf /tmp/gh.tar.gz -C /tmp && \
-    mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh && \
+    mv /tmp/gh_${GH_VERSION}_linux_arm64/bin/gh /usr/local/bin/gh && \
     chmod +x /usr/local/bin/gh && \
-    rm -rf /tmp/gh.tar.gz /tmp/gh_${GH_VERSION}_linux_amd64
+    rm -rf /tmp/gh.tar.gz /tmp/gh_${GH_VERSION}_linux_arm64
 
 # Remove C headers from Node (only needed for compiling native modules)
 # Also remove unused platform binaries from global @github/copilot CLI (~84MB savings)
 RUN rm -rf /root/.local/share/mise/installs/node/24/include \
            /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/prebuilds/darwin-* \
            /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/prebuilds/win32-* \
-           /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/prebuilds/linux-arm64 \
+           /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/prebuilds/linux-x64 \
            /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/ripgrep/bin/darwin-* \
            /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/ripgrep/bin/win32-* \
-           /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/ripgrep/bin/linux-arm64
+           /root/.local/share/mise/installs/node/24/lib/node_modules/@github/copilot/ripgrep/bin/linux-x64
 
 # =============================================================================
 # Agent dependency install (cached unless package.json/lock change)
@@ -119,15 +119,15 @@ RUN npm prune --omit=dev
 # Remove unused platform binaries (keep only linux-x64)
 # @openai/codex-sdk: ships binaries for all 6 platforms (~270MB savings)
 # @github/copilot: prebuilds and ripgrep for all platforms (~60MB savings)
-RUN rm -rf node_modules/@openai/codex-sdk/vendor/aarch64-* \
+RUN rm -rf node_modules/@openai/codex-sdk/vendor/x86_64-* \
            node_modules/@openai/codex-sdk/vendor/x86_64-apple-* \
            node_modules/@openai/codex-sdk/vendor/x86_64-pc-windows-* \
            node_modules/@github/copilot/prebuilds/darwin-* \
            node_modules/@github/copilot/prebuilds/win32-* \
-           node_modules/@github/copilot/prebuilds/linux-arm64 \
+           node_modules/@github/copilot/prebuilds/linux-x64 \
            node_modules/@github/copilot/ripgrep/bin/darwin-* \
            node_modules/@github/copilot/ripgrep/bin/win32-* \
-           node_modules/@github/copilot/ripgrep/bin/linux-arm64
+           node_modules/@github/copilot/ripgrep/bin/linux-x64
 
 # =============================================================================
 # Runtime
@@ -145,11 +145,11 @@ RUN useradd -m -u 1000 -G docker -d /agent agent && \
 
 # Install bun (no dependency on builder - can run in parallel)
 RUN apt-get update && apt-get install -y --no-install-recommends unzip && \
-    curl -fsSL "https://github.com/oven-sh/bun/releases/latest/download/bun-linux-x64.zip" -o /tmp/bun.zip && \
+    curl -fsSL "https://github.com/oven-sh/bun/releases/latest/download/bun-linux-aarch64.zip" -o /tmp/bun.zip && \
     unzip /tmp/bun.zip -d /tmp && \
-    mv /tmp/bun-linux-x64/bun /opt/bun && \
+    mv /tmp/bun-linux-aarch64/bun /opt/bun && \
     chmod +x /opt/bun && \
-    rm -rf /tmp/bun.zip /tmp/bun-linux-x64 /var/lib/apt/lists/*
+    rm -rf /tmp/bun.zip /tmp/bun-linux-aarch64 /var/lib/apt/lists/*
 
 # Copy stable binaries (these rarely change, so place before frequently-changing layers)
 COPY --from=builder /usr/local/bin/opencode /usr/local/bin/opencode

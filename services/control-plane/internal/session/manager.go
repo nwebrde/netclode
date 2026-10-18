@@ -2280,6 +2280,7 @@ func (m *Manager) getAllowedSecretForHost(sdkType pb.SdkType, host string) (secr
 			{hosts: []string{"openrouter.ai", "api.openrouter.ai"}, secretKey: "opencode", placeholder: "NETCLODE_PLACEHOLDER_opencode"},
 			{hosts: []string{"api.opencode.ai"}, secretKey: "opencode", placeholder: "NETCLODE_PLACEHOLDER_opencode"},
 			{hosts: []string{"open.bigmodel.cn"}, secretKey: "zai", placeholder: "NETCLODE_PLACEHOLDER_zai"},
+			{hosts: []string{"api.deepseek.com"}, secretKey: "deepseek", placeholder: "NETCLODE_PLACEHOLDER_deepseek"},
 		}
 
 	case pb.SdkType_SDK_TYPE_COPILOT:
@@ -2451,7 +2452,8 @@ func (m *Manager) fetchOpenCodeModels(ctx context.Context) []*pb.ModelInfo {
 		"hasOpenAIKey", m.config.OpenAIAPIKey != "",
 		"hasMistralKey", m.config.MistralAPIKey != "",
 		"hasOpenCodeKey", m.config.OpenCodeAPIKey != "",
-		"hasZaiKey", m.config.ZaiAPIKey != "")
+		"hasZaiKey", m.config.ZaiAPIKey != "",
+		"hasDeepSeekKey", m.config.DeepSeekAPIKey != "")
 
 	var models []*pb.ModelInfo
 
@@ -2495,8 +2497,15 @@ func (m *Manager) fetchOpenCodeModels(ctx context.Context) []*pb.ModelInfo {
 		models = append(models, zaiModels...)
 	}
 
+	// Add DeepSeek models if DEEPSEEK_API_KEY is set
+	if m.config.DeepSeekAPIKey != "" {
+		deepseekModels := m.fetchOpenCodeModelsForProvider(ctx, "deepseek")
+		slog.InfoContext(ctx, "Fetched OpenCode DeepSeek models", "count", len(deepseekModels))
+		models = append(models, deepseekModels...)
+	}
+
 	if len(models) == 0 {
-		slog.WarnContext(ctx, "No OpenCode credentials configured (need ANTHROPIC_API_KEY, OPENAI_API_KEY, MISTRAL_API_KEY, OPENCODE_API_KEY, ZAI_API_KEY, or OLLAMA_URL)")
+		slog.WarnContext(ctx, "No OpenCode credentials configured (need ANTHROPIC_API_KEY, OPENAI_API_KEY, MISTRAL_API_KEY, OPENCODE_API_KEY, ZAI_API_KEY, DEEPSEEK_API_KEY, or OLLAMA_URL)")
 	}
 
 	slog.InfoContext(ctx, "fetchOpenCodeModels returning", "totalModels", len(models))

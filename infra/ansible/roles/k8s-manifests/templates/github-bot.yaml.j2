@@ -24,10 +24,12 @@ spec:
         app: github-bot
     spec:
       serviceAccountName: github-bot
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       automountServiceAccountToken: false
       containers:
         - name: github-bot
-          image: ghcr.io/angristan/netclode-github-bot:latest
+          image: ghcr.io/nwebrde/netclode-github-bot:latest
           ports:
             - containerPort: 8080
               name: http

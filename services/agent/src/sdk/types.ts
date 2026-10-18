@@ -38,6 +38,8 @@ export interface SDKConfig {
   openCodeApiKey?: string;
   // Z.AI API key (for GLM-4.7 models via Anthropic-compatible endpoint)
   zaiApiKey?: string;
+  // DeepSeek API key (for DeepSeek models)
+  deepSeekApiKey?: string;
 }
 
 /**
